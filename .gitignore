@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+
+# Banco local (SQLite)
+*.db
+*.db-journal
+
+# Segredos
+.env
+
+# Claude Code: config pessoal
+.claude/settings.local.json
