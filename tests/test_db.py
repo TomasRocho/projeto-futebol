@@ -1,3 +1,6 @@
+# pyright: reportArgumentType=false, reportOptionalMemberAccess=false
+# (ids dos models são "int | None" até o flush; nos testes isso é ruído)
+
 """Garante que as constraints do Modelo-Relacional valem de verdade no banco."""
 
 from datetime import date

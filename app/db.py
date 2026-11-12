@@ -1,5 +1,7 @@
 from collections.abc import Iterator
+from typing import Annotated, Any
 
+from fastapi import Depends, HTTPException, status
 from sqlalchemy import Engine, event
 from sqlmodel import Session, SQLModel, create_engine
 
@@ -38,3 +40,13 @@ def create_db() -> None:
 def get_session() -> Iterator[Session]:
     with Session(engine) as session:
         yield session
+
+
+SessionDep = Annotated[Session, Depends(get_session)]
+
+
+def get_or_404[M: SQLModel](session: Session, model: type[M], ident: Any, detail: str) -> M:
+    obj = session.get(model, ident)
+    if obj is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail)
+    return obj
