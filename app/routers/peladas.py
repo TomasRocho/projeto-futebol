@@ -1,10 +1,13 @@
+import random
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, col, func, select
 
 from app.auth import require_admin
 from app.db import SessionDep, get_or_404
 from app.estado import estado_pelada
-from app.models import Jogador, Pelada, Presenca, Time
+from app.models import Jogador, Partida, Pelada, Presenca, Time
+from app.sorteio import sortear_times
 from app.schemas import (
     PeladaCreate,
     PeladaEstado,
@@ -16,6 +19,9 @@ from app.schemas import (
 
 router = APIRouter(prefix="/peladas", tags=["peladas"])
 admin = [Depends(require_admin)]
+
+CORES = ["Azul", "Vermelho", "Verde", "Amarelo"]  # nomes das equipes, na ordem do sorteio
+_rng = random.Random()
 
 
 def _buscar(session: Session, pelada_id: int) -> Pelada:
@@ -65,6 +71,57 @@ def estado(pelada_id: int, session: SessionDep):
 def remover(pelada_id: int, session: SessionDep) -> None:
     session.delete(_buscar(session, pelada_id))  # CASCADE leva equipes, presenças, partidas...
     session.commit()
+
+
+@router.post("/{pelada_id}/sorteio", response_model=PeladaEstado, dependencies=admin)
+def sortear(pelada_id: int, session: SessionDep):
+    """Sorteia as equipes equilibrando o rating. Pode refazer até começar a 1ª partida."""
+    pelada = _buscar(session, pelada_id)
+    if session.exec(select(Partida.id).where(Partida.pelada_id == pelada_id)).first():
+        raise HTTPException(
+            status.HTTP_409_CONFLICT, "Já começou partida nesta pelada: o sorteio não pode ser refeito"
+        )
+
+    presentes = session.exec(
+        select(Presenca, Jogador.rating)
+        .join(Jogador, col(Jogador.id) == Presenca.jogador_id)
+        .where(Presenca.pelada_id == pelada_id)
+    ).all()
+    if len(presentes) < pelada.numero_times:
+        raise HTTPException(
+            status.HTTP_409_CONFLICT,
+            f"São {len(presentes)} presentes para {pelada.numero_times} equipes: "
+            "precisa de pelo menos um por equipe",
+        )
+
+    # Desfaz o sorteio anterior. Solta as presenças ANTES de apagar as equipes:
+    # a FK presenca -> equipe é ON DELETE CASCADE e apagaria as presenças junto.
+    for presenca, _ in presentes:
+        presenca.equipe_id = None
+        session.add(presenca)
+    session.flush()
+    for equipe in session.exec(select(Time).where(Time.pelada_id == pelada_id)).all():
+        session.delete(equipe)
+    session.flush()  # deletes antes dos inserts (nomes são únicos por pelada)
+
+    resultado = sortear_times(
+        [(p.jogador_id, rating) for p, rating in presentes],
+        pelada.numero_times,
+        pelada.jogadores_por_time,
+        _rng,
+    )
+    por_jogador = {p.jogador_id: p for p, _ in presentes}
+    for i, ids in enumerate(resultado.times):
+        # As duas primeiras começam em quadra; as outras formam a fila (1, 2).
+        equipe = Time(pelada_id=pelada_id, nome=CORES[i], ordem_fila=None if i < 2 else i - 1)
+        session.add(equipe)
+        session.flush()
+        for jid in ids:
+            por_jogador[jid].equipe_id = equipe.id
+            session.add(por_jogador[jid])
+
+    session.commit()
+    return estado_pelada(session, pelada)
 
 
 # --- Presenças ---

@@ -56,6 +56,41 @@ class JogadorDetalhe(JogadorPublic):
     estatisticas: Estatisticas
 
 
+class JogadorRef(BaseModel):
+    id: int
+    nome: str
+
+
+# --- Estatísticas ---
+
+TipoRanking = Literal["gols", "assistencias", "vitorias"]
+
+
+class RankingItem(BaseModel):
+    posicao: int  # empate divide a posição: 1, 1, 3
+    jogador: JogadorRef
+    valor: int  # o número do tipo pedido
+    estatisticas: Estatisticas
+
+
+class EquipeEstatisticas(BaseModel):
+    id: int
+    nome: str
+    partidas: int = 0
+    vitorias: int = 0
+    empates: int = 0
+    derrotas: int = 0
+    gols_marcados: int = 0
+    gols_sofridos: int = 0
+
+
+class PeladaEstatisticas(BaseModel):
+    pelada_id: int
+    partidas_encerradas: int
+    equipes: list[EquipeEstatisticas]
+    artilheiros: list[RankingItem]
+
+
 # --- Pelada ---
 
 
@@ -112,3 +147,47 @@ class PresencaCreate(BaseModel):
 
 class PresencaUpdate(BaseModel):
     equipe_id: int | None  # obrigatório; null = esperando
+
+
+# --- Partida e gol ---
+
+
+class EquipePartida(BaseModel):
+    id: int
+    nome: str
+    gols: int
+    jogadores: list[JogadorPublic]  # escalação (foto do início da partida)
+
+
+class GolPublic(BaseModel):
+    id: int
+    equipe_id: int  # equipe beneficiada
+    autor: JogadorRef
+    assistente: JogadorRef | None
+    gol_contra: bool
+
+
+class PartidaDetalhe(BaseModel):
+    id: int
+    pelada_id: int
+    numero: int
+    encerrada: bool
+    penaltis_a: int | None
+    penaltis_b: int | None
+    equipe_a: EquipePartida
+    equipe_b: EquipePartida
+    gols: list[GolPublic]  # em ordem de registro
+
+
+class EncerrarPartida(BaseModel):
+    """Pênaltis: obrigatórios em empate com 2 ou 3 equipes; proibidos nos outros casos."""
+
+    penaltis_a: Annotated[int, Field(ge=0)] | None = None
+    penaltis_b: Annotated[int, Field(ge=0)] | None = None
+
+
+class GolCreate(BaseModel):
+    equipe_id: int  # equipe beneficiada (no gol contra, a adversária do autor)
+    autor_id: int
+    assistente_id: int | None = None
+    gol_contra: bool = False
