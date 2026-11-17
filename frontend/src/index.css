@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+/* Fundo claro: lê melhor no sol, na beira da quadra. */
+body {
+  @apply bg-stone-100 text-stone-900 antialiased;
+}
