@@ -34,13 +34,16 @@ def session(engine: Engine) -> Iterator[Session]:
 
 @pytest.fixture
 def client(engine: Engine) -> Iterator[TestClient]:
-    """Cliente HTTP da API usando o mesmo banco do teste."""
+    """Cliente HTTP da API usando o mesmo banco do teste.
+
+    base_url já inclui o /api: nos testes, "/jogadores" vira "/api/jogadores".
+    """
 
     def _session() -> Iterator[Session]:
         with Session(engine) as s:
             yield s
 
     fastapi_app.dependency_overrides[get_session] = _session
-    with TestClient(fastapi_app) as c:
+    with TestClient(fastapi_app, base_url="http://testserver/api") as c:
         yield c
     fastapi_app.dependency_overrides.clear()

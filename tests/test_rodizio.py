@@ -264,3 +264,30 @@ def test_varias_partidas_seguidas(client: TestClient):
         assert sorted(e["ordem_fila"] for e in estado["equipes"] if e["ordem_fila"]) == [1, 2]
         assert sum(len(e["jogadores"]) for e in estado["equipes"]) == 24
         assert len(estado["esperando"]) == 3
+
+
+# --- Lista de partidas do dia ---
+
+
+def test_listar_partidas_do_dia(client: TestClient):
+    pid = _pelada(client, 12)
+    assert client.get(f"/peladas/{pid}/partidas").json() == []
+
+    _jogar(client, pid, vencedor="a")
+    _jogar(client, pid, vencedor=None, penaltis_a=2, penaltis_b=4)
+    andamento = _comecar(client, pid)
+    _gol(client, andamento, "b")
+
+    r = client.get(f"/peladas/{pid}/partidas")
+    assert r.status_code == 200
+    linhas = [
+        (p["numero"], p["encerrada"], p["equipe_a"]["nome"], p["equipe_a"]["gols"],
+         p["equipe_b"]["gols"], p["equipe_b"]["nome"], p["penaltis_a"], p["penaltis_b"])
+        for p in r.json()
+    ]
+    assert linhas == [
+        (1, True, "Azul", 1, 0, "Vermelho", None, None),
+        (2, True, "Azul", 0, 0, "Vermelho", 2, 4),
+        (3, False, "Azul", 0, 1, "Vermelho", None, None),
+    ]
+    assert client.get("/peladas/999/partidas").status_code == 404

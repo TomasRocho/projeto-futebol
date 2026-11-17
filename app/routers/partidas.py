@@ -6,16 +6,19 @@ from sqlmodel import Session, col, func, select
 from app.auth import require_admin
 from app.db import SessionDep, get_or_404
 from app.estado import estado_pelada
+from app.estatisticas import placares
 from app.models import Escalacao, Gol, Jogador, Partida, Pelada, Presenca, Time
 from app.rodizio import aplicar_rodizio, placar
 from app.schemas import (
     EncerrarPartida,
     EquipePartida,
+    EquipePlacar,
     GolCreate,
     GolPublic,
     JogadorPublic,
     JogadorRef,
     PartidaDetalhe,
+    PartidaPlacar,
     PeladaEstado,
 )
 
@@ -140,6 +143,33 @@ def comecar_partida(pelada_id: int, session: SessionDep):
     )
     session.commit()
     return detalhe_partida(session, partida)
+
+
+@router.get("/peladas/{pelada_id}/partidas", response_model=list[PartidaPlacar])
+def listar_partidas(pelada_id: int, session: SessionDep):
+    """Partidas do dia, em ordem, com o placar de cada uma."""
+    get_or_404(session, Pelada, pelada_id, "Pelada não encontrada")
+    partidas = session.exec(
+        select(Partida).where(Partida.pelada_id == pelada_id).order_by(col(Partida.numero))
+    ).all()
+    nomes = dict(session.exec(select(Time.id, Time.nome).where(Time.pelada_id == pelada_id)).all())
+    placar_ = placares(session, {p.id for p in partidas})  # pyright: ignore[reportArgumentType]
+
+    def equipe(p: Partida, eid: int) -> EquipePlacar:
+        return EquipePlacar(id=eid, nome=nomes[eid], gols=placar_[p.id, eid])
+
+    return [
+        PartidaPlacar(
+            id=p.id,  # pyright: ignore[reportArgumentType]
+            numero=p.numero,
+            encerrada=p.encerrada,
+            penaltis_a=p.penaltis_a,
+            penaltis_b=p.penaltis_b,
+            equipe_a=equipe(p, p.equipe_a_id),
+            equipe_b=equipe(p, p.equipe_b_id),
+        )
+        for p in partidas
+    ]
 
 
 @router.get("/partidas/{partida_id}", response_model=PartidaDetalhe)

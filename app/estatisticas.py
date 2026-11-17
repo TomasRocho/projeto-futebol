@@ -61,7 +61,7 @@ def calcular(
         q = q.where(Escalacao.jogador_id == jogador_id)
     jogos = session.exec(na_pelada(q)).all()
 
-    placar = _placar(session, {pid for pid, _, _ in jogos})
+    placar = placares(session, {pid for pid, _, _ in jogos})
     for partida_id, jid, equipe_id in jogos:
         e = est[jid]
         e.partidas += 1
@@ -106,7 +106,7 @@ def estatisticas_pelada(session: Session, pelada: Pelada) -> PeladaEstatisticas:
         select(Time).where(Time.pelada_id == pelada.id).order_by(col(Time.id))
     ).all()
     partidas = session.exec(select(Partida).where(Partida.pelada_id == pelada.id)).all()
-    placar = _placar(session, {p.id for p in partidas})  # pyright: ignore[reportArgumentType]
+    placar = placares(session, {p.id for p in partidas})  # pyright: ignore[reportArgumentType]
 
     por_equipe = {
         e.id: EquipeEstatisticas(id=e.id, nome=e.nome)  # pyright: ignore[reportArgumentType]
@@ -138,7 +138,7 @@ def estatisticas_pelada(session: Session, pelada: Pelada) -> PeladaEstatisticas:
     )
 
 
-def _placar(session: Session, partida_ids: set[int]) -> Counter:
+def placares(session: Session, partida_ids: set[int]) -> Counter:
     """Gols por (partida, equipe beneficiada) e total por (partida, None)."""
     placar: Counter = Counter()
     if not partida_ids:

@@ -179,6 +179,24 @@ class PartidaDetalhe(BaseModel):
     gols: list[GolPublic]  # em ordem de registro
 
 
+class EquipePlacar(BaseModel):
+    id: int
+    nome: str
+    gols: int
+
+
+class PartidaPlacar(BaseModel):
+    """Linha da lista de partidas do dia."""
+
+    id: int
+    numero: int
+    encerrada: bool
+    penaltis_a: int | None
+    penaltis_b: int | None
+    equipe_a: EquipePlacar
+    equipe_b: EquipePlacar
+
+
 class EncerrarPartida(BaseModel):
     """Pênaltis: obrigatórios em empate com 2 ou 3 equipes; proibidos nos outros casos."""
 

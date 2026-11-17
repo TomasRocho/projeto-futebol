@@ -8,6 +8,7 @@ O design fica no vault do Tomás, **fora deste repo**. Leia antes de mexer em mo
 - `~/Documents/cerebro/Projetos/Projeto-Futebol/Diagrama-Classes.md`: classes e **regras do rodízio, fila e empate**
 - `~/Documents/cerebro/Projetos/Projeto-Futebol/Modelo-Relacional.md`: tabelas e SQL (SQLite)
 - `~/Documents/cerebro/Projetos/Projeto-Futebol/Endpoints-API.md`: rotas
+- `~/Documents/cerebro/Projetos/Projeto-Futebol/Telas-Frontend.md`: telas, fluxo e decisões do frontend
 
 Se o código precisar divergir do design, avise e atualize a nota correspondente. Não deixe os dois desalinhados.
 
@@ -22,6 +23,9 @@ No vault: **nunca apague** nada (proponha mover para `~/Documents/cerebro/Arquiv
 - Python, FastAPI, SQLModel, SQLite (migrar para PostgreSQL depois)
 - SQLite: ligar `PRAGMA foreign_keys = ON` **em toda conexão** (event listener no engine). Sem isso, as FKs do modelo não valem.
 - Admin único: escrita protegida por header `X-API-Key`, leitura pública.
+- API toda sob `/api`.
+- Frontend: React + Vite + TypeScript em `frontend/` (Tailwind, React Router, TanStack Query, openapi-fetch). Mobile-first.
+- **Mudou endpoint ou schema? Rode `npm run gen:api` em `frontend/`**: regenera `src/api/schema.d.ts` a partir do OpenAPI do FastAPI, e o `npm run build` acusa o que quebrou no front.
 
 ## Como responder
 - Português, termos técnicos em inglês.

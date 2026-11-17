@@ -7,7 +7,21 @@ from app.main import app
 
 def test_health():
     with TestClient(app) as client:
-        assert client.get("/health").json() == {"status": "ok"}
+        assert client.get("/api/health").json() == {"status": "ok"}
+
+
+def test_api_so_existe_sob_prefixo(client: TestClient):
+    # URL absoluta ignora o base_url (.../api) da fixture
+    assert client.get("http://testserver/jogadores").status_code == 404
+    assert client.get("http://testserver/api/jogadores").status_code == 200
+
+
+def test_admin_check():
+    with TestClient(app) as client:
+        assert client.get("/api/admin/check").status_code == 401
+        assert client.get("/api/admin/check", headers={"X-API-Key": "errada"}).status_code == 401
+        r = client.get("/api/admin/check", headers={"X-API-Key": "chave-de-teste"})
+        assert r.status_code == 204
 
 
 def _app_protegido() -> TestClient:
