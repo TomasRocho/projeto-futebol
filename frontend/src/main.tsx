@@ -6,11 +6,16 @@ import { RouterProvider } from 'react-router/dom'
 import { AdminProvider } from './admin'
 import { ApiError } from './api/client'
 import { Layout } from './components/Layout'
-import { EmConstrucao, Titulo } from './components/ui'
+import { Titulo } from './components/ui'
 import './index.css'
+import { EstatisticasPelada } from './pages/EstatisticasPelada'
 import { Inicio } from './pages/Inicio'
+import { Jogador } from './pages/Jogador'
+import { Jogadores } from './pages/Jogadores'
+import { Partida } from './pages/Partida'
 import { Peladas } from './pages/Peladas'
 import { PeladaPage } from './pages/pelada/PeladaPage'
+import { Ranking } from './pages/Ranking'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -31,11 +36,11 @@ const router = createBrowserRouter([
       { index: true, element: <Inicio /> },
       { path: 'peladas', element: <Peladas /> },
       { path: 'peladas/:id', element: <PeladaPage /> },
-      { path: 'peladas/:id/estatisticas', element: <EmConstrucao titulo="Estatísticas do dia" /> },
-      { path: 'partidas/:id', element: <EmConstrucao titulo="Partida" /> },
-      { path: 'ranking', element: <EmConstrucao titulo="Ranking" /> },
-      { path: 'jogadores', element: <EmConstrucao titulo="Jogadores" /> },
-      { path: 'jogadores/:id', element: <EmConstrucao titulo="Jogador" /> },
+      { path: 'peladas/:id/estatisticas', element: <EstatisticasPelada /> },
+      { path: 'partidas/:id', element: <Partida /> },
+      { path: 'ranking', element: <Ranking /> },
+      { path: 'jogadores', element: <Jogadores /> },
+      { path: 'jogadores/:id', element: <Jogador /> },
       { path: '*', element: <Titulo>Página não encontrada</Titulo> },
     ],
   },

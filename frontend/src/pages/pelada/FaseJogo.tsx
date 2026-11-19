@@ -1,23 +1,22 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState, type Dispatch, type SetStateAction } from 'react'
+import { Flag } from 'lucide-react'
 import { useAdmin } from '../../admin'
 import { chaves } from '../../api/chaves'
 import {
   api,
   ok,
-  type EquipePartida,
   type JogadorPublic,
   type PartidaDetalhe,
   type PeladaEstado,
 } from '../../api/client'
 import { usePartida } from '../../api/hooks'
+import { ListaGols, Placar, type Lado } from '../../components/Partida'
 import { Sheet } from '../../components/Sheet'
 import { Botao, Carregando, Erro } from '../../components/ui'
 import { corEquipe } from '../../lib/cores'
 import { resumoEncerramento } from '../../lib/encerramento'
 import { FaseEntrePartidas } from './FaseEntrePartidas'
-
-type Lado = 'a' | 'b'
 
 /** Partida em andamento: placar, gols, e (admin) lançar gol / desfazer / encerrar. */
 export function FaseJogo({
@@ -42,7 +41,7 @@ export function FaseJogo({
       <ListaGols partida={p} admin={ehAdmin} />
       {ehAdmin && (
         <Botao className="mt-4 w-full text-lg" onClick={() => setEncerrando(true)}>
-          🏁 Encerrar partida
+          <Flag size={20} /> Encerrar partida
         </Botao>
       )}
 
@@ -61,110 +60,7 @@ export function FaseJogo({
   )
 }
 
-// --- Placar ---
-
-function Placar({ partida, onGol }: { partida: PartidaDetalhe; onGol?: (lado: Lado) => void }) {
-  return (
-    <section className="rounded-2xl bg-white p-4 shadow-sm">
-      <p className="mb-3 text-center text-sm text-stone-500">Partida {partida.numero} · em andamento</p>
-      <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-3">
-        <LadoPlacar equipe={partida.equipe_a} onGol={onGol && (() => onGol('a'))} />
-        <span className="pt-10 text-3xl text-stone-300">x</span>
-        <LadoPlacar equipe={partida.equipe_b} onGol={onGol && (() => onGol('b'))} />
-      </div>
-    </section>
-  )
-}
-
-function LadoPlacar({ equipe, onGol }: { equipe: EquipePartida; onGol?: () => void }) {
-  const cor = corEquipe(equipe.nome)
-  return (
-    <div className="flex flex-col items-center gap-2">
-      <span className={`max-w-full truncate rounded-full px-3 py-1 text-sm font-bold ${cor.faixa}`}>
-        {equipe.nome}
-      </span>
-      <span className="text-6xl leading-none font-bold tabular-nums">{equipe.gols}</span>
-      {onGol && (
-        <button
-          className={`mt-1 min-h-12 w-full rounded-xl font-semibold active:opacity-80 ${cor.faixa}`}
-          onClick={onGol}
-        >
-          + gol
-        </button>
-      )}
-    </div>
-  )
-}
-
-// --- Gols ---
-
-function ListaGols({ partida, admin }: { partida: PartidaDetalhe; admin: boolean }) {
-  const queryClient = useQueryClient()
-  const desfazer = useMutation({
-    mutationFn: (golId: number) =>
-      ok(
-        api.DELETE('/api/partidas/{partida_id}/gols/{gol_id}', {
-          params: { path: { partida_id: partida.id, gol_id: golId } },
-        }),
-      ),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: chaves.partida(partida.id) }),
-  })
-
-  if (partida.gols.length === 0) {
-    return <p className="mt-4 text-center text-stone-500">Nenhum gol ainda.</p>
-  }
-
-  const nomeEquipe = (id: number) =>
-    id === partida.equipe_a.id ? partida.equipe_a.nome : partida.equipe_b.nome
-
-  return (
-    <>
-      <ul className="mt-4 divide-y divide-stone-100 overflow-hidden rounded-xl bg-white shadow-sm">
-        {partida.gols.map((g) => {
-          const equipe = nomeEquipe(g.equipe_id)
-          const cor = corEquipe(equipe)
-          const conteudo = (
-            <>
-              <span className={`size-3 shrink-0 rounded-full ${cor.ponto}`} />
-              <span className="flex-1">
-                ⚽ {g.autor.nome}
-                {g.gol_contra ? (
-                  <span className="text-stone-500"> (contra)</span>
-                ) : (
-                  g.assistente && <span className="text-stone-500"> ({g.assistente.nome})</span>
-                )}
-              </span>
-              <span className={`text-sm font-semibold ${cor.texto}`}>{equipe}</span>
-            </>
-          )
-          return (
-            <li key={g.id}>
-              {admin ? (
-                <button
-                  className="flex min-h-12 w-full items-center gap-3 px-4 text-left active:bg-stone-50 disabled:opacity-50"
-                  disabled={desfazer.isPending}
-                  onClick={() =>
-                    window.confirm(`Desfazer o gol de ${g.autor.nome}?`) && desfazer.mutate(g.id)
-                  }
-                >
-                  {conteudo}
-                </button>
-              ) : (
-                <div className="flex min-h-12 items-center gap-3 px-4">{conteudo}</div>
-              )}
-            </li>
-          )
-        })}
-      </ul>
-      {admin && <p className="mt-1 text-center text-xs text-stone-400">Toque num gol para desfazer.</p>}
-      {desfazer.isError && (
-        <div className="mt-2">
-          <Erro erro={desfazer.error} />
-        </div>
-      )}
-    </>
-  )
-}
+// --- Lançar gol ---
 
 /** Lançar gol: autor (ou gol contra) → assistência. Listas vêm da escalação da partida. */
 function GolSheet({ partida, lado, fechar }: { partida: PartidaDetalhe; lado: Lado; fechar: () => void }) {
@@ -209,7 +105,7 @@ function GolSheet({ partida, lado, fechar }: { partida: PartidaDetalhe; lado: La
           desabilitado={registrar.isPending}
           onEscolher={(j) => registrar.mutate({ autor_id: autor.id, assistente_id: j.id, gol_contra: false })}
         />
-        <button className="mt-3 min-h-11 w-full font-semibold text-stone-600" onClick={() => setAutor(null)}>
+        <button className="mt-3 min-h-11 w-full font-semibold text-slate-600" onClick={() => setAutor(null)}>
           ← Voltar
         </button>
         {erro}
@@ -224,7 +120,7 @@ function GolSheet({ partida, lado, fechar }: { partida: PartidaDetalhe; lado: La
     >
       <button
         className={`mb-3 min-h-11 w-full rounded-xl border font-semibold ${
-          contra ? 'border-stone-800 bg-stone-800 text-white' : 'border-stone-300 text-stone-700'
+          contra ? 'border-slate-800 bg-slate-800 text-white' : 'border-slate-300 text-slate-700'
         }`}
         onClick={() => setContra((c) => !c)}
       >
@@ -253,14 +149,14 @@ function BotoesJogadores({
   desabilitado: boolean
   onEscolher: (j: JogadorPublic) => void
 }) {
-  if (jogadores.length === 0) return <p className="text-stone-500">Ninguém escalado.</p>
+  if (jogadores.length === 0) return <p className="text-slate-500">Ninguém escalado.</p>
   return (
     <ul className="grid grid-cols-2 gap-2">
       {jogadores.map((j) => (
         <li key={j.id}>
           <button
             disabled={desabilitado}
-            className="min-h-12 w-full truncate rounded-xl bg-stone-100 px-3 font-semibold active:bg-stone-200 disabled:opacity-50"
+            className="min-h-12 w-full truncate rounded-xl bg-slate-100 px-3 font-semibold active:bg-slate-200 disabled:opacity-50"
             onClick={() => onEscolher(j)}
           >
             {j.nome}
@@ -323,13 +219,13 @@ function EncerrarSheet({
 
   return (
     <Sheet titulo="Encerrar partida?" fechar={fechar}>
-      <p className="mb-4 text-stone-700">{texto}</p>
+      <p className="mb-4 text-slate-700">{texto}</p>
 
       {pedePenaltis && (
         <div className="mb-4 space-y-2">
           <ContadorPenaltis equipe={a.nome} valor={penA} mudar={setPenA} />
           <ContadorPenaltis equipe={b.nome} valor={penB} mudar={setPenB} />
-          <p className="text-xs text-stone-500">
+          <p className="text-xs text-slate-500">
             {penaltisEmpatados
               ? 'Os pênaltis não podem terminar empatados.'
               : 'Pênalti só decide quem sai: nas estatísticas conta como empate.'}
@@ -351,7 +247,7 @@ function EncerrarSheet({
           disabled={encerrar.isPending || penaltisEmpatados}
           onClick={() => encerrar.mutate()}
         >
-          {encerrar.isPending ? 'Encerrando…' : '🏁 Encerrar'}
+          {encerrar.isPending ? 'Encerrando…' : <><Flag size={18} /> Encerrar</>}
         </Botao>
       </div>
     </Sheet>
@@ -369,11 +265,11 @@ function ContadorPenaltis({
   mudar: Dispatch<SetStateAction<number>>
 }) {
   return (
-    <div className="flex items-center justify-between rounded-xl bg-stone-50 p-2">
+    <div className="flex items-center justify-between rounded-xl bg-slate-50 p-2">
       <span className={`rounded-full px-3 py-1 text-sm font-bold ${corEquipe(equipe).faixa}`}>{equipe}</span>
       <div className="flex items-center gap-3">
         <button
-          className="size-11 rounded-full bg-white text-2xl shadow-sm disabled:opacity-40"
+          className="size-11 rounded-full bg-white text-2xl disabled:opacity-40"
           disabled={valor === 0}
           onClick={() => mudar((v) => Math.max(0, v - 1))}
           aria-label={`Menos um pênalti para ${equipe}`}
@@ -382,7 +278,7 @@ function ContadorPenaltis({
         </button>
         <span className="w-8 text-center text-2xl font-bold tabular-nums">{valor}</span>
         <button
-          className="size-11 rounded-full bg-white text-2xl shadow-sm"
+          className="size-11 rounded-full bg-white text-2xl"
           onClick={() => mudar((v) => v + 1)}
           aria-label={`Mais um pênalti para ${equipe}`}
         >

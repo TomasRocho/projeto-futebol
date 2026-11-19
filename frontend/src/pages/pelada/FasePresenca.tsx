@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Dices } from 'lucide-react'
 import { useAdmin } from '../../admin'
 import { api, ok, type PeladaEstado } from '../../api/client'
 import { useAcaoNaPelada, useJogadores } from '../../api/hooks'
@@ -18,17 +19,17 @@ export function FasePresenca({ estado }: { estado: PeladaEstado }) {
 
   return (
     <>
-      <p className="rounded-xl bg-white p-4 text-stone-600 shadow-sm">
+      <p className="rounded-2xl bg-white p-4 text-slate-600">
         Aguardando o sorteio ·{' '}
         {resumoPresenca(presentes.length, estado.numero_times, estado.jogadores_por_time)}
       </p>
       <Subtitulo>Presentes</Subtitulo>
       {presentes.length === 0 ? (
-        <p className="text-stone-500">Ninguém marcado ainda.</p>
+        <p className="text-slate-500">Ninguém marcado ainda.</p>
       ) : (
         <ul className="flex flex-wrap gap-2">
           {presentes.map((j) => (
-            <li key={j.id} className="rounded-full bg-white px-3 py-1.5 shadow-sm">
+            <li key={j.id} className="rounded-full bg-white px-3 py-1.5">
               {j.nome}
             </li>
           ))}
@@ -66,7 +67,7 @@ function ChecklistPresenca({ estado }: { estado: PeladaEstado }) {
 
   return (
     <>
-      <div className="space-y-3 rounded-xl bg-white p-4 shadow-sm">
+      <div className="space-y-3 rounded-2xl bg-white p-4">
         <p className="font-semibold">
           {resumoPresenca(marcados.size, estado.numero_times, estado.jogadores_por_time)}
         </p>
@@ -81,7 +82,7 @@ function ChecklistPresenca({ estado }: { estado: PeladaEstado }) {
           </div>
         ) : (
           <Botao className="w-full" disabled={!podeSortear || sortear.isPending} onClick={() => sortear.mutate()}>
-            {sortear.isPending ? 'Sorteando…' : '🎲 Sortear times'}
+            {sortear.isPending ? 'Sorteando…' : <><Dices size={20} /> Sortear times</>}
           </Botao>
         )}
         {erro && <Erro erro={erro} />}
@@ -91,13 +92,13 @@ function ChecklistPresenca({ estado }: { estado: PeladaEstado }) {
       {jogadores.isPending && <Carregando />}
       {jogadores.isError && <Erro erro={jogadores.error} tentarDeNovo={() => jogadores.refetch()} />}
       {jogadores.data && (
-        <ul className="divide-y divide-stone-100 overflow-hidden rounded-xl bg-white shadow-sm">
+        <ul className="divide-y divide-slate-100 overflow-hidden rounded-2xl bg-white">
           {jogadores.data.map((j) => (
             <li key={j.id}>
-              <label className="flex min-h-12 cursor-pointer items-center gap-3 px-4 active:bg-stone-50">
+              <label className="flex min-h-12 cursor-pointer items-center gap-3 px-4 active:bg-slate-50">
                 <input
                   type="checkbox"
-                  className="size-5 accent-green-700"
+                  className="size-5 accent-marca"
                   checked={marcados.has(j.id)}
                   onChange={() => alternar(j.id)}
                 />
@@ -107,7 +108,7 @@ function ChecklistPresenca({ estado }: { estado: PeladaEstado }) {
             </li>
           ))}
           {jogadores.data.length === 0 && (
-            <li className="px-4 py-3 text-stone-500">Nenhum jogador cadastrado ainda.</li>
+            <li className="px-4 py-3 text-slate-500">Nenhum jogador cadastrado ainda.</li>
           )}
         </ul>
       )}

@@ -21,7 +21,7 @@ export function EquipeCard({
 }) {
   const cor = corEquipe(equipe.nome)
   return (
-    <section className="overflow-hidden rounded-xl bg-white shadow-sm">
+    <section className="overflow-hidden rounded-2xl bg-white">
       <header className={`px-3 py-2 ${cor.faixa}`}>
         <p className="truncate font-bold">
           {rotulo && <span className="mr-1 opacity-80">{rotulo}</span>}
@@ -32,9 +32,9 @@ export function EquipeCard({
         </p>
       </header>
       {equipe.jogadores.length === 0 ? (
-        <p className="px-3 py-3 text-sm text-stone-400">Sem jogadores</p>
+        <p className="px-3 py-3 text-sm text-slate-400">Sem jogadores</p>
       ) : (
-        <ul className="divide-y divide-stone-100">
+        <ul className="divide-y divide-slate-100">
           {equipe.jogadores.map((j) => {
             const conteudo = (
               <>
@@ -46,7 +46,7 @@ export function EquipeCard({
               <li key={j.id}>
                 {onJogador ? (
                   <button
-                    className="flex min-h-11 w-full items-center justify-between gap-2 px-3 text-left active:bg-stone-100"
+                    className="flex min-h-11 w-full items-center justify-between gap-2 px-3 text-left active:bg-slate-100"
                     onClick={() => onJogador(j)}
                   >
                     {conteudo}

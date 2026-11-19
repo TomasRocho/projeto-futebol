@@ -29,17 +29,17 @@ export function NovoJogadorRapido({ onCriado }: { onCriado: (jogador: JogadorPub
 
   if (!aberto) {
     return (
-      <button className="min-h-11 w-full font-semibold text-green-700" onClick={() => setAberto(true)}>
+      <button className="min-h-11 w-full font-semibold text-marca" onClick={() => setAberto(true)}>
         + Cadastrar jogador novo
       </button>
     )
   }
 
   return (
-    <form onSubmit={enviar} className="space-y-3 rounded-xl border border-stone-200 bg-stone-50 p-3">
+    <form onSubmit={enviar} className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
       <input
         placeholder="Nome"
-        className="w-full rounded-xl border border-stone-300 bg-white px-3 py-3"
+        className="w-full rounded-xl border border-slate-300 bg-white px-3 py-3"
         value={nome}
         onChange={(e) => setNome(e.target.value)}
         autoFocus

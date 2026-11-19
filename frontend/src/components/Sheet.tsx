@@ -28,7 +28,7 @@ export function Sheet({
         <div className="mb-3 flex items-start justify-between gap-2">
           <h2 className="text-lg font-bold">{titulo}</h2>
           <button
-            className="-mt-1 -mr-2 grid size-10 shrink-0 place-items-center rounded-full text-xl text-stone-500 active:bg-stone-100"
+            className="-mt-1 -mr-2 grid size-10 shrink-0 place-items-center rounded-full text-xl text-slate-500 active:bg-slate-100"
             onClick={fechar}
             aria-label="Fechar"
           >

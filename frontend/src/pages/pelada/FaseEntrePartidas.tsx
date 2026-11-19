@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
+import { Dices, Play } from 'lucide-react'
 import { useAdmin } from '../../admin'
 import { chaves } from '../../api/chaves'
 import { api, ok, type JogadorPublic, type PeladaEstado } from '../../api/client'
@@ -57,20 +58,20 @@ export function FaseEntrePartidas({ estado, somenteLeitura = false }: { estado: 
 
       <Subtitulo>Esperando</Subtitulo>
       {estado.esperando.length === 0 ? (
-        <p className="text-stone-500">Ninguém esperando.</p>
+        <p className="text-slate-500">Ninguém esperando.</p>
       ) : (
         <ul className="flex flex-wrap gap-2">
           {estado.esperando.map((j) => (
             <li key={j.id}>
               {admin ? (
                 <button
-                  className="min-h-10 rounded-full bg-white px-3 shadow-sm active:bg-stone-100"
+                  className="min-h-10 rounded-full bg-white px-3 active:bg-slate-100"
                   onClick={() => setSelecionado({ jogador: j, equipeId: null })}
                 >
                   {j.nome}
                 </button>
               ) : (
-                <span className="inline-block rounded-full bg-white px-3 py-2 shadow-sm">{j.nome}</span>
+                <span className="inline-block rounded-full bg-white px-3 py-2">{j.nome}</span>
               )}
             </li>
           ))}
@@ -112,7 +113,7 @@ function AcoesPrincipais({ estado }: { estado: PeladaEstado }) {
   return (
     <div className="space-y-2">
       <Botao className="w-full text-lg" disabled={comecar.isPending} onClick={() => comecar.mutate()}>
-        ▶ Começar {proxima ? `partida ${proxima}` : 'partida'}
+        <Play size={20} fill="currentColor" /> Começar {proxima ? `partida ${proxima}` : 'partida'}
       </Botao>
       {nenhumaPartida && (
         <Botao
@@ -121,7 +122,7 @@ function AcoesPrincipais({ estado }: { estado: PeladaEstado }) {
           disabled={refazer.isPending}
           onClick={() => window.confirm('Refazer o sorteio? Os times atuais serão desfeitos.') && refazer.mutate()}
         >
-          🎲 Refazer sorteio
+          <Dices size={20} /> Refazer sorteio
         </Botao>
       )}
       {comecar.isError && <Erro erro={comecar.error} />}
@@ -152,7 +153,7 @@ function AcoesJogador({
 
   return (
     <Sheet titulo={jogador.nome} fechar={fechar}>
-      <p className="mb-2 text-sm text-stone-600">Mover para</p>
+      <p className="mb-2 text-sm text-slate-600">Mover para</p>
       <div className="grid grid-cols-2 gap-2">
         {destinos.map((e) => {
           const cheio = e.jogadores.length >= estado.jogadores_por_time
@@ -171,14 +172,14 @@ function AcoesJogador({
         {equipeId !== null && (
           <button
             disabled={ocupado}
-            className="min-h-12 rounded-xl bg-stone-200 font-semibold disabled:opacity-40"
+            className="min-h-12 rounded-xl bg-slate-200 font-semibold disabled:opacity-40"
             onClick={() => mover.mutate(null, { onSuccess: fechar })}
           >
             Esperando
           </button>
         )}
       </div>
-      <p className="mt-2 text-xs text-stone-500">Vale a partir da próxima partida.</p>
+      <p className="mt-2 text-xs text-slate-500">Vale a partir da próxima partida.</p>
 
       <Botao
         variante="perigo"
@@ -215,17 +216,17 @@ function ChegouAlguem({ estado, fechar }: { estado: PeladaEstado; fechar: () => 
 
   return (
     <Sheet titulo="Quem chegou?" fechar={fechar}>
-      <p className="mb-3 text-sm text-stone-600">Entra como esperando e troca com o time que perder.</p>
+      <p className="mb-3 text-sm text-slate-600">Entra como esperando e troca com o time que perder.</p>
       {jogadores.isPending && <Carregando />}
       {jogadores.data && ausentes.length === 0 && (
-        <p className="mb-3 text-stone-500">Todo mundo cadastrado já está na pelada.</p>
+        <p className="mb-3 text-slate-500">Todo mundo cadastrado já está na pelada.</p>
       )}
-      <ul className="mb-3 divide-y divide-stone-100">
+      <ul className="mb-3 divide-y divide-slate-100">
         {ausentes.map((j) => (
           <li key={j.id}>
             <button
               disabled={adicionar.isPending}
-              className="min-h-12 w-full text-left active:bg-stone-50 disabled:opacity-50"
+              className="min-h-12 w-full text-left active:bg-slate-50 disabled:opacity-50"
               onClick={() => adicionar.mutate(j.id, { onSuccess: fechar })}
             >
               {j.nome}

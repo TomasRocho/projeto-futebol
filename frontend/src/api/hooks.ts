@@ -22,6 +22,35 @@ export function usePartidasDaPelada(id: number, enabled = true) {
   })
 }
 
+export function usePeladas() {
+  return useQuery({ queryKey: chaves.peladas, queryFn: () => ok(api.GET('/api/peladas')) })
+}
+
+export function useJogador(id: number) {
+  return useQuery({
+    queryKey: chaves.jogador(id),
+    queryFn: () => ok(api.GET('/api/jogadores/{jogador_id}', { params: { path: { jogador_id: id } } })),
+  })
+}
+
+export type TipoRanking = 'gols' | 'assistencias' | 'vitorias'
+
+export function useRanking(tipo: TipoRanking, peladaId: number | null) {
+  return useQuery({
+    queryKey: chaves.ranking(tipo, peladaId),
+    queryFn: () =>
+      ok(api.GET('/api/ranking', { params: { query: { tipo, pelada_id: peladaId ?? undefined } } })),
+  })
+}
+
+export function useEstatisticasDaPelada(id: number) {
+  return useQuery({
+    queryKey: chaves.estatisticasDaPelada(id),
+    queryFn: () =>
+      ok(api.GET('/api/peladas/{pelada_id}/estatisticas', { params: { path: { pelada_id: id } } })),
+  })
+}
+
 export function usePartida(id: number) {
   return useQuery({
     queryKey: chaves.partida(id),

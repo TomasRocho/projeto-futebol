@@ -25,7 +25,7 @@ function Pelada({ id }: { id: number }) {
       return (
         <>
           <Titulo>Pelada não encontrada</Titulo>
-          <Link to="/peladas" className="font-semibold text-green-700">
+          <Link to="/peladas" className="font-semibold text-marca">
             Ver todas as peladas
           </Link>
         </>
@@ -41,13 +41,13 @@ function Pelada({ id }: { id: number }) {
         <h1 className="text-2xl font-bold">
           {e.data === hojeISO() ? 'Pelada de hoje' : formatarData(e.data)}
         </h1>
-        <p className="text-sm text-stone-500">
+        <p className="text-sm text-slate-500">
           {e.numero_times} times de {e.jogadores_por_time} ·{' '}
-          <Link to={`/peladas/${e.id}/estatisticas`} className="font-semibold text-green-700">
+          <Link to={`/peladas/${e.id}/estatisticas`} className="font-semibold text-marca">
             Estatísticas
           </Link>{' '}
           ·{' '}
-          <Link to="/peladas" className="font-semibold text-green-700">
+          <Link to="/peladas" className="font-semibold text-marca">
             Outras peladas
           </Link>
         </p>
@@ -68,13 +68,13 @@ function Fase({ estado, onEncerrada }: { estado: PeladaEstado; onEncerrada: (res
 /** Resumo do que o encerramento fez (resultado + rodízio). */
 function Aviso({ linhas, fechar }: { linhas: string[]; fechar: () => void }) {
   return (
-    <div className="mb-4 flex items-start gap-2 rounded-xl border border-green-200 bg-green-50 p-3 text-green-900">
+    <div className="mb-4 flex items-start gap-2 rounded-xl border border-marca/20 bg-marca-clara p-3 text-marca-escura">
       <div className="flex-1 space-y-0.5">
         {linhas.map((l) => (
           <p key={l}>{l}</p>
         ))}
       </div>
-      <button className="-m-1 grid size-9 place-items-center rounded-full active:bg-green-100" onClick={fechar} aria-label="Fechar aviso">
+      <button className="-m-1 grid size-9 place-items-center rounded-full active:bg-white/60" onClick={fechar} aria-label="Fechar aviso">
         ✕
       </button>
     </div>

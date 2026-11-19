@@ -26,7 +26,7 @@ export function AdminModal({ fechar }: { fechar: () => void }) {
   if (ehAdmin) {
     return (
       <Sheet titulo="Modo admin" fechar={fechar}>
-        <p className="mb-4 text-stone-600">Você pode sortear, lançar gols e encerrar partidas.</p>
+        <p className="mb-4 text-slate-600">Você pode sortear, lançar gols e encerrar partidas.</p>
         <div className="flex gap-2">
           <Botao variante="secundario" className="flex-1" onClick={fechar}>
             Fechar
@@ -49,14 +49,14 @@ export function AdminModal({ fechar }: { fechar: () => void }) {
   return (
     <Sheet titulo="Entrar como admin" fechar={fechar}>
       <form onSubmit={enviar}>
-        <label className="mb-1 block text-sm text-stone-600" htmlFor="chave">
+        <label className="mb-1 block text-sm text-slate-600" htmlFor="chave">
           API key
         </label>
         <input
           id="chave"
           type="password"
           autoComplete="current-password"
-          className="mb-2 w-full rounded-xl border border-stone-300 px-3 py-3"
+          className="mb-2 w-full rounded-xl border border-slate-300 px-3 py-3"
           value={chave}
           onChange={(e) => setChave(e.target.value)}
           autoFocus

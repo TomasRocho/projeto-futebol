@@ -1,6 +1,23 @@
 @import "tailwindcss";
+@import "@fontsource-variable/inter";
 
-/* Fundo claro: lê melhor no sol, na beira da quadra. */
+/*
+ * Tema visual (inspirado no Sofascore): azul de marca, fundo cinza-azulado,
+ * cards brancos arredondados sem sombra, tipografia sans compacta.
+ * Mudar a cara do app = mexer aqui.
+ */
+@theme {
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+
+  --color-marca: #374df5;
+  --color-marca-escura: #2c3ec4;
+  --color-marca-clara: #e8ebfe;
+  --color-fundo: #edf1f6;
+  --color-aovivo: #e5352b;
+  --color-vitoria: #00a83f;
+  --color-derrota: #ce1b1b;
+}
+
 body {
-  @apply bg-stone-100 text-stone-900 antialiased;
+  @apply bg-fundo font-sans text-slate-900 antialiased;
 }
