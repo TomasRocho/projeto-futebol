@@ -1,0 +1,14 @@
+# O que NÃO vai para dentro da imagem (segredos, lixo de dev, coisas que o Docker recria)
+.git
+.env
+.claude
+.venv
+.pytest_cache
+**/__pycache__
+*.db
+*.db-journal
+tests
+scripts
+frontend/node_modules
+frontend/dist
+frontend/openapi.json

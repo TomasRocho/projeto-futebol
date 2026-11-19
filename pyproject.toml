@@ -8,6 +8,7 @@ dependencies = [
     "fastapi[standard]>=0.115",
     "sqlmodel>=0.0.22",
     "pydantic-settings>=2.6",
+    "psycopg[binary] (>=3.3.9,<4.0.0)",
 ]
 
 [tool.poetry]

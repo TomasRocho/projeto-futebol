@@ -11,9 +11,15 @@ def test_health():
 
 
 def test_api_so_existe_sob_prefixo(client: TestClient):
-    # URL absoluta ignora o base_url (.../api) da fixture
-    assert client.get("http://testserver/jogadores").status_code == 404
-    assert client.get("http://testserver/api/jogadores").status_code == 200
+    # URL absoluta ignora o base_url (.../api) da fixture.
+    # Sem prefixo, /jogadores é a página do React (se o build existir) ou 404, nunca o JSON.
+    sem_prefixo = client.get("http://testserver/jogadores")
+    assert not sem_prefixo.headers.get("content-type", "").startswith("application/json") or (
+        sem_prefixo.status_code == 404
+    )
+    com_prefixo = client.get("http://testserver/api/jogadores")
+    assert com_prefixo.status_code == 200
+    assert com_prefixo.headers["content-type"].startswith("application/json")
 
 
 def test_admin_check():

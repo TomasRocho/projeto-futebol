@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, FastAPI, status
 
 from app.auth import require_admin
 from app.db import create_db
+from app.frontend import montar_frontend
 from app.routers import estatisticas, jogadores, partidas, peladas
 
 
@@ -40,3 +41,6 @@ def admin_check() -> None:
 
 
 app.include_router(api)
+
+# Por último: a rota "pega-tudo" do React não pode tapar /api, /docs e /openapi.json.
+montar_frontend(app)

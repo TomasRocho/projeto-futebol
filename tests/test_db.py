@@ -3,6 +3,7 @@
 
 """Garante que as constraints do Modelo-Relacional valem de verdade no banco."""
 
+import os
 from datetime import date
 
 import pytest
@@ -48,6 +49,7 @@ def _falha(s: Session, obj) -> None:
     s.rollback()
 
 
+@pytest.mark.skipif(bool(os.environ.get("TEST_DATABASE_URL")), reason="PRAGMA é só do SQLite")
 def test_foreign_keys_ligadas(session: Session):
     assert session.exec(text("PRAGMA foreign_keys")).one()[0] == 1  # type: ignore[call-overload]
 

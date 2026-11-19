@@ -20,8 +20,10 @@ Adicione uma linha datada (`- AAAA-MM-DD: ...`) no **"Onde parei"** da nota-índ
 No vault: **nunca apague** nada (proponha mover para `~/Documents/cerebro/Arquivo/` e espere o ok). Nomes de arquivo sem acento, com hífen.
 
 ## Stack
-- Python, FastAPI, SQLModel, SQLite (migrar para PostgreSQL depois)
+- Python, FastAPI, SQLModel. Banco: **SQLite em dev/testes, PostgreSQL (Neon) em produção** (`DATABASE_URL`).
 - SQLite: ligar `PRAGMA foreign_keys = ON` **em toda conexão** (event listener no engine). Sem isso, as FKs do modelo não valem.
+- Testes contra PostgreSQL: `TEST_DATABASE_URL=postgresql+psycopg://... poetry run pytest` (sem a variável, rodam no SQLite em memória).
+- Produção: Render (Docker, ver `Dockerfile`), um servidor só: FastAPI serve `/api` e o build do React (`app/frontend.py`). Guia em `~/Documents/cerebro/Projetos/Projeto-Futebol/Deploy.md`.
 - Admin único: escrita protegida por header `X-API-Key`, leitura pública.
 - API toda sob `/api`.
 - Frontend: React + Vite + TypeScript em `frontend/` (Tailwind, React Router, TanStack Query, openapi-fetch). Mobile-first.

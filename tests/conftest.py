@@ -17,10 +17,19 @@ from app.db import get_session, make_engine  # noqa: E402
 from app.main import app as fastapi_app  # noqa: E402
 
 
+# Vazio = SQLite em memória (padrão, rápido).
+# Para rodar contra PostgreSQL: TEST_DATABASE_URL=postgresql+psycopg://... poetry run pytest
+TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL")
+
+
 @pytest.fixture
 def engine() -> Iterator[Engine]:
-    """Banco novo em memória para cada teste, com FKs ligadas."""
-    eng = make_engine("sqlite://", poolclass=StaticPool)
+    """Banco limpo para cada teste, com FKs valendo."""
+    if TEST_DATABASE_URL:
+        eng = make_engine(TEST_DATABASE_URL)
+        SQLModel.metadata.drop_all(eng)
+    else:
+        eng = make_engine("sqlite://", poolclass=StaticPool)
     SQLModel.metadata.create_all(eng)
     yield eng
     eng.dispose()

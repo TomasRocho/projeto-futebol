@@ -14,6 +14,11 @@ def make_engine(url: str, **kwargs) -> Engine:
     if is_sqlite:
         # O FastAPI pode usar a conexão em outra thread.
         kwargs.setdefault("connect_args", {"check_same_thread": False})
+    else:
+        # PostgreSQL (Neon): o banco "dorme" quando fica parado e derruba conexões abertas.
+        # pre_ping testa a conexão antes de usar; recycle troca as velhas.
+        kwargs.setdefault("pool_pre_ping", True)
+        kwargs.setdefault("pool_recycle", 300)
 
     engine = create_engine(url, **kwargs)
 
